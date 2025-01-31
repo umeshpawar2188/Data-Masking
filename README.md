@@ -1,88 +1,67 @@
-# Data-Masking
-Code artefacts for Data masking/ Obfuscation
+# DataMasking at Scale
+Code artifacts for Data Masking/Obfuscation
 
-As part of this project developed reusable code to mask existing big data and generate synthetic data at Scale using PySpark (Fabric / Databricks)
+This project provides reusable code to mask existing big data and generate synthetic data at scale using PySpark (Fabric/Databricks).
 
-Notebooks here are developed on Microsoft fabric - https://www.microsoft.com/en-us/microsoft-fabric?msockid=243318f36141605817eb09166541669f. If you are running it on different flatform make approproate changes to paths / location of the data.
+Notebooks are developed on [Microsoft Fabric](https://www.microsoft.com/en-us/microsoft-fabric?msockid=243318f36141605817eb09166541669f).  
+If running on a different platform, adjust paths and data locations accordingly.
 
-Read more about the implementation at - 
+Read more about the implementation at: [Link Placeholder]
 
+---
 
-Automating Data Obfuscation and Maintaining Data Integrity Using Gen-AI and a Configuration-Driven Approach
+## 📂 Repository Structure
 
-Introduction
+### 1️⃣ `config.ipynb`
+- **Purpose**: Defines PII columns, file locations, and Faker functions.
+- **Modify**: Update `pii_column_mapping` to define new PII columns.
 
-Protecting Personally Identifiable Information (PII) is critical in modern data governance. This utility provides a structured, configuration-driven approach to data desensitization while ensuring referential integrity across related tables.
+### 2️⃣ `Common Udfs.ipynb`
+- **Purpose**: Implements PySpark UDFs using Faker to generate fake data.
+- **Modify**: Add new UDFs if additional data types need masking.
 
-Sequence of Code Modifications and Execution
+### 3️⃣ `Runner - data masking utility.ipynb`
+- **Purpose**: Loads data, applies transformations using UDFs, and writes masked data back.
+- **Modify**: Adjust file paths or integrate with different storage formats.
+- **Run**: Execute this notebook to apply data masking.
 
-1. Configuration File (config.ipynb)
+### 4️⃣ `PII Identifier using LLM.ipynb`
+- **Purpose**: Uses LLM to identify PII columns and generate config mappings automatically.
+- **Modify**: Adjust model parameters or extend functionality.
+- **Run**: Execute this notebook to auto-generate `pii_column_mapping`.
 
-Defines PII columns, specifies Faker functions for data masking, and maintains referential integrity across tables.
+---
 
-Example Configuration:
+## 🚀 Execution Steps
 
-config = {
-    "table_list": ["dim_customer", "fact_sales"],
-    "dimcustomer": {
-        "pii_column_mapping": {
-            "CustomerID": "random_int",
-            "FirstName": "first_name",
-            "LastName": "last_name",
-            "Email": "email",
-            "PhoneNumber": "phone_number",
-            "DateOfBirth": "date_of_birth"
-        },
-        "location": "Files/synthetic_data/dim_customer_df",
-        "file_format": "delta"
-    },
-    "factsales": {
-        "pii_column_mapping": {
-            "CustomerID": "random_int",
-            "CustomerEmail": "email"
-        },
-        "location": "Files/synthetic_data/fact_sales_df",
-        "file_format": "delta"
-    }
-}
+1. **Update** `config.ipynb` with the correct PII mappings and file locations.
+2. **Modify** `Common Udfs.ipynb` if new masking functions are required.
+3. **Run** `Runner - data masking utility.ipynb` to apply transformations.
+4. *(Optional)* **Execute** `PII Identifier using LLM.ipynb` to generate the configuration automatically.
 
-Key Point: CustomerID is a primary key in dim_customer and a foreign key in fact_sales.
+---
 
-2. Data Synthesis Functions and UDFs (Common Udfs.ipynb)
+## 🔄 Maintaining Referential Integrity
 
-Defining Fake Data Functions
+- Use **consistent Faker functions and seed values** to generate repeatable fake data.
+- Ensure **CustomerID or foreign keys** are masked consistently across related tables.
 
-Generates synthetic PII using the faker library.
+---
 
-Uses seed_instance(seedValue) to ensure consistent results.
+## 🛠️ Enhancements
 
-Example Functions:
+- Store masking logic **within table metadata** instead of using a separate config file.
+- **Automate PII detection** and config generation using LLMs.
 
-def get_fake_first_name(seedValue):
-    fake.seed_instance(seedValue)
-    return fake.first_name()
+---
 
-def get_fake_last_name(seedValue):
-    fake.seed_instance(seedValue)
-    return fake.last_name()
+## ▶️ How to Run
 
-Registering UDFs in PySpark
+1. **Ensure dependencies** are installed (`PySpark`, `Faker`, LLM models if applicable).
+2. **Execute** `Runner - data masking utility.ipynb` **after updating configurations**.
 
-get_fake_first_name_udf = udf(get_fake_first_name, StringType())
-get_fake_last_name_udf = udf(get_fake_last_name, StringType())
+---
 
-Applying UDFs to a DataFrame
+## 💡 Contributing
 
-for column, fake_type in column_mapping.items():
-    if fake_type == 'first_name':
-        original_df = original_df.withColumn(column, get_fake_first_name_udf(original_df[column]))
-    elif fake_type == 'last_name':
-        original_df = original_df.withColumn(column, get_fake_last_name_udf(original_df[column]))
-
-Significance of seedValue:
-
-Ensures deterministic fake data.
-
-Same seed value = same fake output across related tables.
-
-Example Without and With Seed:
+For issues or contributions, feel free to **submit a pull request** or **raise an issue**! 🚀
